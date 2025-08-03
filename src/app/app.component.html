@@ -1,0 +1,159 @@
+<div class="container" [class.dark-theme]="isDarkTheme">
+  <div class="theme-toggle">
+    <button (click)="toggleTheme()" class="theme-btn">
+      {{ isDarkTheme ? '☀️' : '🌙' }}
+    </button>
+  </div>
+  
+  <h1 class="main-title">How are you feeling today?</h1>
+  
+  <div class="mood-section">
+    <div class="mood-options">
+      <button
+         *ngFor="let mood of moods"
+         (click)="selectMood(mood.key)"
+        [class.selected]="selectedMood === mood.key"
+        class="mood-btn">
+        {{ mood.emoji }}
+        <span class="mood-label">{{ mood.label }}</span>
+      </button>
+    </div>
+    
+    <div class="notes-section" *ngIf="selectedMood">
+      <textarea
+        [(ngModel)]="currentNote"
+        placeholder="How was your day? What made you feel this way?"
+        class="mood-notes"
+        rows="3">
+      </textarea>
+      <button (click)="saveMoodEntry()" class="save-btn" [disabled]="!selectedMood">
+        💾 Save Entry
+      </button>
+    </div>
+  </div>
+  
+  <!-- Confirmation -->
+  <div class="confirmation" *ngIf="showConfirmation" [@fadeInOut]>
+    <p>Mood <strong>{{ selectedMood }}</strong> saved! 🫶</p>
+  </div>
+  
+  <!-- Weekly Trends Chart -->
+  <div class="trends-section" *ngIf="weeklyData.length > 0">
+    <h3>Weekly Mood Trends</h3>
+    <div class="chart-container">
+      <div class="chart-bar" *ngFor="let day of weeklyData">
+        <div class="bar" [style.height.%]="day.score * 20" [style.background-color]="day.color"></div>
+        <div class="bar-label">{{ day.day }}</div>
+        <div class="bar-emoji">{{ day.emoji }}</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Calendar -->
+  <div class="calendar">
+    <div class="calendar-header">
+      <button (click)="previousMonth()" class="nav-btn">‹</button>
+      <h2>{{ currentMonthName }} {{ currentYear }}</h2>
+      <button (click)="nextMonth()" class="nav-btn">›</button>
+    </div>
+    
+    <div class="calendar-grid">
+      <div class="day-name" *ngFor="let day of weekDays">{{ day }}</div>
+      
+      <div
+         class="calendar-cell"
+         *ngFor="let date of calendarDates"
+        [class.today]="isToday(date)"
+        [class.has-mood]="date.mood"
+        (click)="openDateDetails(date)">
+        <span *ngIf="date.day !== 0" class="date-number">{{ date.day }}</span>
+        <span *ngIf="date.mood" class="mood-emoji" [@bounce]>{{ getEmoji(date.mood) }}</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- View History Button -->
+  <button class="history-button" (click)="showMoodHistory()">📖 View Mood History</button>
+  
+  <!-- Date Details Modal -->
+  <div class="modal-overlay" *ngIf="selectedDate" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" [@slideIn]>
+      <div class="modal-header">
+        <h3>{{ formatDate(selectedDate.fullDate) }}</h3>
+        <button (click)="closeModal()" class="close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- VIEW MODE -->
+        <div *ngIf="selectedDate.mood && !isEditMode; else noMoodOrEdit">
+          <div class="mood-display">
+            <span class="large-emoji">{{ getEmoji(selectedDate.mood) }}</span>
+            <span class="mood-text">{{ getMoodLabel(selectedDate.mood) }}</span>
+          </div>
+          <div class="note-display" *ngIf="selectedDate.note">
+            <h4>Notes:</h4>
+            <p>{{ selectedDate.note }}</p>
+          </div>
+          <div class="modal-actions">
+            <button (click)="editMoodForDate()" class="edit-btn">✏️ Edit</button>
+            <button (click)="deleteMoodEntry()" class="delete-btn">🗑️ Delete</button>
+          </div>
+        </div>
+        
+        <ng-template #noMoodOrEdit>
+          <!-- EDIT MODE -->
+          <div *ngIf="isEditMode; else noMood">
+            <h4>Edit Mood Entry</h4>
+            
+            <!-- Edit Mood Selection -->
+            <div class="mood-options edit-mode">
+              <button
+                 *ngFor="let mood of moods"
+                 (click)="selectEditMood(mood.key)"
+                [class.selected]="editingMood === mood.key"
+                class="mood-btn mini">
+                {{ mood.emoji }}
+                <span class="mood-label">{{ mood.label }}</span>
+              </button>
+            </div>
+            
+            <!-- Edit Note -->
+            <div class="edit-note-section">
+              <label>Notes:</label>
+              <textarea
+                [(ngModel)]="editingNote"
+                placeholder="How was your day? What made you feel this way?"
+                class="mood-notes"
+                rows="3">
+              </textarea>
+            </div>
+            
+            <!-- Edit Actions -->
+            <div class="modal-actions">
+              <button (click)="saveEditedMood()" class="save-btn" [disabled]="!editingMood">
+                💾 Save Changes
+              </button>
+              <button (click)="cancelEdit()" class="cancel-btn">
+                ❌ Cancel
+              </button>
+            </div>
+          </div>
+          
+          <!-- NO MOOD RECORDED -->
+          <ng-template #noMood>
+            <p>No mood recorded for this day.</p>
+            <div class="mood-options mini">
+              <button
+                 *ngFor="let mood of moods"
+                 (click)="setMoodForDate(mood.key)"
+                class="mood-btn mini">
+                {{ mood.emoji }}
+              </button>
+            </div>
+          </ng-template>
+        </ng-template>
+        
+      </div>
+    </div>
+  </div>
+</div>
