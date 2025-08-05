@@ -4,6 +4,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 Mood Journal is a feature-rich, client-side web application built with Angular. It provides a beautiful and intuitive interface for tracking your daily moods, writing journal entries, and visualizing your emotional well-being over time. All data is stored locally in your browser's local storage, ensuring your privacy.
 
 Features:
+
 Daily Mood Logging: Select from a range of moods (e.g., Ecstatic, Happy, Sad, Angry) and add a descriptive note about your day.
 
 Interactive Calendar: View your mood history on a monthly calendar, with emojis representing your entries.
@@ -20,6 +21,7 @@ Responsive Design: The application is fully responsive and works seamlessly on b
 
 
 Technologies Used:
+
 Angular
 
 TypeScript
